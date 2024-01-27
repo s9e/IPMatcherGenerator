@@ -1,0 +1,29 @@
+{
+	"name": "s9e/ipmatcher-generator",
+	"type": "library",
+	"description": "",
+	"homepage": "https://github.com/s9e/IPMatcherGenerator/",
+	"keywords": ["cidr","ip"],
+	"license": "MIT",
+	"require": {
+		"php":                "^8.1",
+        "s1lentium/iptools":  "^1.2",
+        "s9e/regexp-builder": "^2.1"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^10.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"s9e\\IPMatcherGenerator\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"s9e\\IPMatcherGenerator\\Tests\\": "tests"
+		}
+	},
+	"scripts": {
+		"test": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text"
+	}
+}
