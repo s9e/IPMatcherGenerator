@@ -7,7 +7,7 @@
 */
 namespace s9e\IPMatcherGenerator\NetworkPrefix;
 
-use constant SORT_STRING;
+use const SORT_STRING;
 use function array_values, count, sort, str_starts_with;
 
 class Optimizer
