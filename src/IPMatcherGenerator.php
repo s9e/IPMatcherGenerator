@@ -15,8 +15,9 @@ use s9e\IPMatcherGenerator\NetworkSplitter\S1lentiumIPTools;
 class IPMatcherGenerator
 {
 	public function __construct(
-		public ?Builder                  $regexpBuilder,
-		public ?NetworkSplitterInterface $networkSplitter
+		public AddressTypeInterface $addressType,
+		public Builder              $regexpBuilder   = null,
+		public PrefixOptimizer      $prefixOptimizer = new PrefixOptimizer
 	)
 	{
 	}
@@ -25,35 +26,22 @@ class IPMatcherGenerator
 	* @param  string[] $cidrList
 	* @return string
 	*/
-	public function getIPv4Regexp(array $cidrList): string
+	public function getRegexp(array $cidrList): string
 	{
 		$this->init();
 
-		$masks = [];
+		$binaryPrefixes = [];
 		foreach ($cidrList as $cidr)
 		{
-			foreach ($this->networkSplitter->splitIPv4($cidr) as $subnet)
-			{
-				$mask = 
-			}
+			$binaryPrefixes[] = $this->addressType->extractCidrBinaryPrefix($cidr);
 		}
-	}
 
-	/**
-	* @param  string[] $cidrList
-	* @return string
-	*/
-	public function getIPv6Regexp(array $cidrList): string
-	{
-		$this->init();
+		$binaryPrefixes = $this->prefixOptimizer->optimize($binaryPrefixes);
+		$binaryPrefixes = $this->
 	}
 
 	public function init(): void
 	{
-		if (!isset($this->networkSplitter))
-		{
-			$this->networkSplitter = new S1lentiumIPTools;
-		}
 		if (!isset($this->regexpBuilder))
 		{
 			$this->regexpBuilder = s9e\RegexpBuilder\PHP::getBuilder(delimiter: '/');

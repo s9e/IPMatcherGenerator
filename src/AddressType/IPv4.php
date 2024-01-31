@@ -55,4 +55,9 @@ class IPv4 implements AddressTypeInterface
 	{
 		return 8;
 	}
+
+	public function serializePrefix(array $values): string
+	{
+		return implode('.', $values);
+	}
 }

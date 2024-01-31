@@ -15,8 +15,9 @@ class IPv6 implements AddressTypeInterface
 	public function extractCidrBinaryPrefix(string $cidr): string
 	{
 		$regexp = '(^'
+		        . '([1-9a-f]([0-9a-f]([0-9a-f][0-9a-f]?)?)?|0)'
 		        . '/'
-		        . '([12][0-9]?|[04-9]|3[0-2]?)'
+		        . '([2-9][0-9]?|0|1(?:[01][0-9]?|[3-9]|2[0-8]?)?)'
 		        . '$)';
 		if (!preg_match($regexp, $cidr, $m))
 		{

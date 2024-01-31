@@ -28,4 +28,10 @@ interface AddressTypeInterface
 	* Return this address type's group size in bits
 	*/
 	public function getGroupSize(): int;
+
+	/**
+	* @param  int[]  $values
+	* @return string
+	*/
+	public function serializePrefix(array $values): string;
 }

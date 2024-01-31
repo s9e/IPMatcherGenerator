@@ -1,19 +1,19 @@
 <?php
 
-namespace s9e\IPMatcherGenerator\Tests\NetworkPrefix;
+namespace s9e\IPMatcherGenerator\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use s9e\IPMatcherGenerator\NetworkPrefix\Optimizer;
+use s9e\IPMatcherGenerator\BinaryPrefixManager;
 
-#[CoversClass('s9e\IPMatcherGenerator\NetworkPrefix\Optimizer')]
-class OptimizerTest extends TestCase
+#[CoversClass('s9e\IPMatcherGenerator\BinaryPrefixManager')]
+class BinaryPrefixManagerTest extends TestCase
 {
 	#[DataProvider('getOptimizeTests')]
 	public function testNormalizeHostInput(array $original, array $expected): void
 	{
-		$this->assertEquals($expected, (new Optimizer)->optimize($original));
+		$this->assertEquals($expected, (new BinaryPrefixManager)->optimize($original));
 	}
 
 	public static function getOptimizeTests(): array

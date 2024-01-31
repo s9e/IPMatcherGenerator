@@ -5,13 +5,17 @@
 * @copyright Copyright (c) The s9e authors
 * @license   http://www.opensource.org/licenses/mit-license.php The MIT License
 */
-namespace s9e\IPMatcherGenerator\NetworkPrefix;
+namespace s9e\IPMatcherGenerator;
 
 use const SORT_STRING;
 use function array_values, count, sort, str_starts_with;
 
-class Optimizer
+class BinaryPrefixManager
 {
+	/**
+	* @param  string[] $prefixes List of prefixes in binary form
+	* @return string[]           Optimized list in lexicographical order
+	*/
 	public function optimize(array $prefixes): array
 	{
 		sort($prefixes, SORT_STRING);
