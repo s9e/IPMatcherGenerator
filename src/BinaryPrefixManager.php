@@ -7,8 +7,8 @@
 */
 namespace s9e\IPMatcherGenerator;
 
-use const SORT_STRING;
-use function array_values, count, sort, str_starts_with;
+use const SORT_STRING, STR_PAD_LEFT;
+use function array_values, count, range, sort, str_pad, str_starts_with, strlen;
 
 class BinaryPrefixManager
 {
@@ -37,5 +37,33 @@ class BinaryPrefixManager
 		}
 
 		return array_values($prefixes);
+	}
+
+	/**
+	* @param  string[] $prefixes List of prefixes in binary form
+	* @param  int      $size
+	* @return string[]           Expanded list, padded to a multiple of $size
+	*/
+	public function pad(array $prefixes, int $size): array
+	{
+		$paddedPrefixes = [];
+		foreach ($prefixes as $prefix)
+		{
+			$extraLength = strlen($prefix) % $size;
+			if ($extraLength === 0)
+			{
+				$paddedPrefixes[] = $prefix;
+				continue;
+			}
+
+			// Fill the missing (least significant) bits with every possible combination
+			$padSize = $size - $extraLength;
+			foreach (range(0, (1 << $padSize) - 1) as $lsbValue)
+			{
+				$paddedPrefixes[] = $prefix . str_pad(decbin($lsbValue), $padSize, '0', STR_PAD_LEFT); 
+			}
+		}
+
+		return $paddedPrefixes;
 	}
 }

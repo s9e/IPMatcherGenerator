@@ -7,17 +7,16 @@
 */
 namespace s9e\IPMatcherGenerator;
 
+use s9e\IPMatcherGenerator\AddressType\AddressTypeInterface;
 use s9e\RegexpBuilder\Builder;
 use s9e\RegexpBuilder\Factory\PHP;
-use s9e\IPMatcherGenerator\NetworkSplitter\NetworkSplitterInterface;
-use s9e\IPMatcherGenerator\NetworkSplitter\S1lentiumIPTools;
 
 class IPMatcherGenerator
 {
 	public function __construct(
-		public AddressTypeInterface $addressType,
-		public Builder              $regexpBuilder   = null,
-		public PrefixOptimizer      $prefixOptimizer = new PrefixOptimizer
+		public  AddressTypeInterface $addressType,
+		public  BinaryPrefixManager  $binaryPrefixManager = new BinaryPrefixManager,
+		public ?Builder              $regexpBuilder       = null
 	)
 	{
 	}
@@ -30,21 +29,48 @@ class IPMatcherGenerator
 	{
 		$this->init();
 
+		// Prepare the list of prefixes in binary form
 		$binaryPrefixes = [];
 		foreach ($cidrList as $cidr)
 		{
 			$binaryPrefixes[] = $this->addressType->extractCidrBinaryPrefix($cidr);
 		}
 
-		$binaryPrefixes = $this->prefixOptimizer->optimize($binaryPrefixes);
-		$binaryPrefixes = $this->
+		$addressSize = $this->addressType->getAddressSize();
+		$groupSize   = $this->addressType->getGroupSize();
+
+		$binaryPrefixes = $this->binaryPrefixManager->optimize($binaryPrefixes);
+		$binaryPrefixes = $this->binaryPrefixManager->pad($binaryPrefixes, $groupSize);
+
+		// Serialize the prefixes to the address format and add the start/end assertions as needed
+		$strings = [];
+		foreach ($binaryPrefixes as $binaryPrefix)
+		{
+			$values = array_map(bindec(...), str_split($binaryPrefix, $groupSize));
+			$string = '^' . $this->addressType->serializePrefix($values);
+			if (strlen($binaryPrefix) === $addressSize)
+			{
+				$string .= '$';
+			}
+
+			$strings[] = $string;
+		}
+
+		// Build the final regexp
+		$regexp = '/' . $this->regexpBuilder->build($strings) . '/';
+		if (preg_match('([a-z])i', $regexp))
+		{
+			$regexp .= 'i';
+		}
+
+		return $regexp;
 	}
 
 	public function init(): void
 	{
 		if (!isset($this->regexpBuilder))
 		{
-			$this->regexpBuilder = s9e\RegexpBuilder\PHP::getBuilder(delimiter: '/');
+			$this->regexpBuilder = PHP::getBuilder(delimiter: '/');
 			$this->regexpBuilder->meta->set('^', '^');
 			$this->regexpBuilder->meta->set('$', '$');
 

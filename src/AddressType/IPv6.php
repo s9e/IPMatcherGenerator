@@ -8,7 +8,7 @@
 namespace s9e\IPMatcherGenerator\AddressType;
 
 use UnexpectedValueException;
-use function preg_match, sprintf, substr;
+use function array_map, count, dechex, implode, preg_match, preg_replace, sprintf, substr;
 
 class IPv6 implements AddressTypeInterface
 {
@@ -25,10 +25,10 @@ class IPv6 implements AddressTypeInterface
 		}
 
 		// Convert to 128 bits binary code
-		$bits = sprintf('%08b', );
+//		$bits = sprintf('%08b', );
 
 		// Keep only the amount required for the CIDR prefix
-		$bits = substr($bits, 0, (int) );
+//		$bits = substr($bits, 0, (int) );
 
 		return $bits;
 	}
@@ -46,5 +46,17 @@ class IPv6 implements AddressTypeInterface
 	public function getGroupSize(): int
 	{
 		return 16;
+	}
+
+	public function serializePrefix(array $values): string
+	{
+		$prefix = implode(':', array_map(dechex(...), $values));
+		if (count($values) < 8)
+		{
+			$prefix .= ':';
+		}
+		$prefix = preg_replace('(:(?:0:)+)', '::', $prefix, 1);
+
+		return $prefix;
 	}
 }
