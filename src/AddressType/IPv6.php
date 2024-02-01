@@ -55,7 +55,7 @@ class IPv6 implements AddressTypeInterface
 		{
 			$prefix .= ':';
 		}
-		$prefix = preg_replace('(:(?:0:)+)', '::', $prefix, 1);
+		$prefix = preg_replace('([:0]{3,}+)', '::', $prefix, 1);
 
 		return $prefix;
 	}
