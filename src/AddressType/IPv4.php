@@ -58,11 +58,8 @@ class IPv4 implements AddressTypeInterface
 
 	public function serializePrefix(array $values): string
 	{
-		$prefix = implode('.', $values);
-		if (count($values) < 4)
-		{
-			$prefix .= '.';
-		}
+		$prefix  = '^' . implode('.', $values);
+		$prefix .= (count($values) < 4) ? '.' : '$';
 
 		return $prefix;
 	}

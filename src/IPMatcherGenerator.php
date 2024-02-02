@@ -46,22 +46,12 @@ class IPMatcherGenerator
 		$strings = [];
 		foreach ($binaryPrefixes as $binaryPrefix)
 		{
-			$values = array_map(bindec(...), str_split($binaryPrefix, $groupSize));
-			$string = '^' . $this->addressType->serializePrefix($values);
-			if (strlen($binaryPrefix) === $addressSize)
-			{
-				$string .= '$';
-			}
-
-			$strings[] = $string;
+			$values    = array_map(bindec(...), str_split($binaryPrefix, $groupSize));
+			$strings[] = $this->addressType->serializePrefix($values);
 		}
 
 		// Build the final regexp
 		$regexp = '/' . $this->regexpBuilder->build($strings) . '/';
-		if (preg_match('([a-z])i', $regexp))
-		{
-			$regexp .= 'i';
-		}
 
 		return $regexp;
 	}
