@@ -70,6 +70,10 @@ class IPv6 implements AddressTypeInterface
 		$prefix .=  (count($values) < 8) ? ':' : '$';
 
 		$prefix = $this->compressPrefix($prefix);
+		if (str_ends_with($prefix, '::'))
+		{
+			die($prefix);
+		}
 
 		return $prefix;
 	}
