@@ -8,7 +8,7 @@
 namespace s9e\IPMatcherGenerator\AddressType;
 
 use UnexpectedValueException;
-use function array_map, count, dechex, implode, preg_match, preg_replace, sprintf, substr;
+use function array_map, array_slice, count, dechex, hexdec, implode, max, preg_match, preg_replace, sprintf, str_repeat, strlen, substr, substr_count;
 
 class IPv6 implements AddressTypeInterface
 {
@@ -69,7 +69,7 @@ class IPv6 implements AddressTypeInterface
 		$prefix  = '^' . implode(':', array_map(dechex(...), $values));
 		$prefix .=  (count($values) < 8) ? ':' : '$';
 
-		$prefix = preg_replace('([:0]{3,}+)', '::', $prefix, 1);
+		$prefix = $this->compressPrefix($prefix);
 
 		return $prefix;
 	}
@@ -91,5 +91,24 @@ class IPv6 implements AddressTypeInterface
 		$skippedCnt = max(1, 8 - substr_count($cidr, ':'));
 
 		return $prefix . str_repeat(':0', $skippedCnt) . ':' . $suffix . $length;
+	}
+
+	protected function compressPrefix(string $prefix): string
+	{
+		if (!preg_match_all('((?::|\\b)0(?::0)++:?)', $prefix, $m, PREG_OFFSET_CAPTURE))
+		{
+			return $prefix;
+		}
+
+		$longestMatch = $m[0][0];
+		foreach ($m[0] as $match)
+		{
+			if (strlen($match[0]) > strlen($longestMatch[0]))
+			{
+				$longestMatch = $match;
+			}
+		}
+
+		return substr($prefix, 0, $longestMatch[1]) . '::' . substr($prefix, $longestMatch[1] + strlen($longestMatch[0]));
 	}
 }

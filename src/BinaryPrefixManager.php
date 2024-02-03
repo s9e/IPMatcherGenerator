@@ -8,7 +8,7 @@
 namespace s9e\IPMatcherGenerator;
 
 use const SORT_STRING, STR_PAD_LEFT;
-use function array_values, count, range, sort, str_pad, str_starts_with, strlen;
+use function array_values, count, decbin, range, sort, str_pad, str_starts_with, strlen;
 
 class BinaryPrefixManager
 {

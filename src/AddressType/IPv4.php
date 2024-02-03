@@ -8,7 +8,7 @@
 namespace s9e\IPMatcherGenerator\AddressType;
 
 use UnexpectedValueException;
-use function preg_match, sprintf, substr;
+use function count, implode, preg_match, sprintf, substr;
 
 class IPv4 implements AddressTypeInterface
 {
@@ -28,7 +28,7 @@ class IPv4 implements AddressTypeInterface
 		        . '([12][0-9]?|[04-9]|3[0-2]?)'
 		        . '$)';
 		if (!preg_match($regexp, $cidr, $m))
-		{var_dump($regexp,$cidr,$m);
+		{
 			throw new UnexpectedValueException;
 		}
 
