@@ -9,6 +9,7 @@ namespace s9e\IPMatcherGenerator\AddressType;
 
 use UnexpectedValueException;
 use function array_map, array_slice, count, dechex, hexdec, implode, max, preg_match, preg_replace, sprintf, str_repeat, strlen, substr, substr_count;
+use s9e\RegexpBuilder\Expression;
 
 class IPv6 implements AddressTypeInterface
 {
@@ -64,37 +65,27 @@ class IPv6 implements AddressTypeInterface
 		return 16;
 	}
 
-	public function serializePrefix(array $values): string
+	public function serializePrefix(array $values): array
 	{
-		$prefix  = '^' . implode(':', array_map(dechex(...), $values));
-		$prefix .=  (count($values) < 8) ? ':' : '$';
-
-		$prefix = $this->compressPrefix($prefix);
-		if (str_ends_with($prefix, '::'))
+		$prefix = implode(':', array_map(dechex(...), $values));
+		if (count($values) < 8)
 		{
-			die($prefix);
+			$prefix .= ':';
+		}
+		$prefix = $this->compressPrefix($prefix);
+
+		$prefix = [new Expression('^'), $prefix];
+		if (count($values) >= 8)
+		{
+			$prefix[] = new Expression('$');
+		}
+		elseif (str_ends_with($prefix[1], '::') && end($values) === 0)
+		{
+			$maxCnt   = 8 - count($values);
+			$prefix[] = new Expression('(?!' . str_repeat('[^:]*:', $maxCnt) . ')');
 		}
 
 		return $prefix;
-	}
-
-	/**
-	* Expand the address part of an IPv6 CIDR so it always have at least 8 groups
-	*/
-	protected function expandCidrAddress(string $cidr): string
-	{
-		if (!preg_match('((.*?)::(.*?)(/.*))s', $cidr, $m))
-		{
-			return $cidr;
-		}
-
-		$prefix = ($m[1] === '') ? '0' : $m[1];
-		$suffix = ($m[2] === '') ? '0' : $m[2];
-		$length = $m[3];
-
-		$skippedCnt = max(1, 8 - substr_count($cidr, ':'));
-
-		return $prefix . str_repeat(':0', $skippedCnt) . ':' . $suffix . $length;
 	}
 
 	protected function compressPrefix(string $prefix): string
@@ -114,5 +105,24 @@ class IPv6 implements AddressTypeInterface
 		}
 
 		return substr($prefix, 0, $longestMatch[1]) . '::' . substr($prefix, $longestMatch[1] + strlen($longestMatch[0]));
+	}
+
+	/**
+	* Expand the address part of an IPv6 CIDR so it always have at least 8 groups
+	*/
+	protected function expandCidrAddress(string $cidr): string
+	{
+		if (!preg_match('((.*?)::(.*?)(/.*))s', $cidr, $m))
+		{
+			return $cidr;
+		}
+
+		$prefix = ($m[1] === '') ? '0' : $m[1];
+		$suffix = ($m[2] === '') ? '0' : $m[2];
+		$length = $m[3];
+
+		$skippedCnt = max(1, 8 - substr_count($cidr, ':'));
+
+		return $prefix . str_repeat(':0', $skippedCnt) . ':' . $suffix . $length;
 	}
 }

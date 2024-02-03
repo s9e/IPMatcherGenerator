@@ -30,8 +30,8 @@ interface AddressTypeInterface
 	public function getGroupSize(): int;
 
 	/**
-	* @param  int[]  $values
-	* @return string
+	* @param  int[] $values
+	* @return array|string
 	*/
-	public function serializePrefix(array $values): string;
+	public function serializePrefix(array $values): array|string;
 }

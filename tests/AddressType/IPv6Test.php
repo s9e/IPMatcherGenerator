@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use s9e\IPMatcherGenerator\AddressType\IPv6;
+use s9e\RegexpBuilder\Expression;
 
 #[CoversClass('s9e\IPMatcherGenerator\AddressType\IPv6')]
 class IPv6Test extends TestCase
@@ -31,7 +32,7 @@ class IPv6Test extends TestCase
 	}
 
 	#[DataProvider('getSerializePrefixTests')]
-	public function testSerializePrefix(string $expected, array $values): void
+	public function testSerializePrefix(array $expected, array $values): void
 	{
 		$this->assertEquals($expected, (new IPv6)->serializePrefix($values));
 	}
@@ -40,48 +41,48 @@ class IPv6Test extends TestCase
 	{
 		return [
 			[
-				'^0:1:2:3:4:5:6:7$',
+				[new Expression('^'), '0:1:2:3:4:5:6:7', new Expression('$')],
 				[0, 1, 2, 3, 4, 5, 6, 7]
 			],
 			[
-				'^0:1:2:3:4:5:6:',
+				[new Expression('^'), '0:1:2:3:4:5:6:'],
 				[0, 1, 2, 3, 4, 5, 6]
 			],
 			[
-				'^1234::abcd$',
+				[new Expression('^'), '1234::abcd', new Expression('$')],
 				[0x1234, 0, 0, 0, 0, 0, 0, 0xabcd]
 			],
 			[
-				'^1234::abcd:0:0$',
+				[new Expression('^'), '1234::abcd:0:0', new Expression('$')],
 				[0x1234, 0, 0, 0, 0, 0xabcd, 0, 0]
 			],
 			[
-				'^1234:',
+				[new Expression('^'), '1234:'],
 				[0x1234]
 			],
 			[
-				'^1::1$',
+				[new Expression('^'), '1::1', new Expression('$')],
 				[1, 0, 0, 0, 0, 0, 0, 1]
 			],
 			[
-				'^::1$',
+				[new Expression('^'), '::1', new Expression('$')],
 				[0, 0, 0, 0, 0, 0, 0, 1]
 			],
 			[
-				'^1::$',
+				[new Expression('^'), '1::', new Expression('$')],
 				[1, 0, 0, 0, 0, 0, 0, 0]
 			],
 			[
-				'^1::(?&h16)$',
+				[new Expression('^'), '1::', new Expression('(?![^:]*:)')],
 				[1, 0, 0, 0, 0, 0, 0]
 			],
 			[
-				'^1::(?:[0-9a-f]+(?::[0-9a-f]){0,3})?$',
+				[new Expression('^'), '1::', new Expression('(?![^:]*:[^:]*:[^:]*:[^:]*:)')],
 				[1, 0, 0, 0]
 			],
 			[
 				// https://datatracker.ietf.org/doc/html/rfc5952#section-4.2.3
-				'^2001:0:0:1::1$',
+				[new Expression('^'), '2001:0:0:1::1', new Expression('$')],
 				[0x2001, 0, 0, 1, 0, 0, 0, 1]
 			],
 		];

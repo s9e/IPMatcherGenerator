@@ -9,6 +9,7 @@ namespace s9e\IPMatcherGenerator\AddressType;
 
 use UnexpectedValueException;
 use function count, implode, preg_match, sprintf, substr;
+use s9e\RegexpBuilder\Expression;
 
 class IPv4 implements AddressTypeInterface
 {
@@ -56,10 +57,10 @@ class IPv4 implements AddressTypeInterface
 		return 8;
 	}
 
-	public function serializePrefix(array $values): string
+	public function serializePrefix(array $values): array
 	{
-		$prefix  = '^' . implode('.', $values);
-		$prefix .= (count($values) < 4) ? '.' : '$';
+		$prefix   = [new Expression('^'), implode('.', $values)];
+		$prefix[] = (count($values) < 4) ? '.' : new Expression('$');
 
 		return $prefix;
 	}
